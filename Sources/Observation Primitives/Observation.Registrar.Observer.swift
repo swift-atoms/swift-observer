@@ -21,15 +21,5 @@ extension Observation.Registrar {
 
         /// didSet callback (fires after mutation).
         var didSet: (@Sendable (Observation.Property.ID) -> Void)?
-
-        init(
-            properties: Set<Observation.Property.ID>,
-            willSet: (@Sendable (Observation.Property.ID) -> Void)?,
-            didSet: (@Sendable (Observation.Property.ID) -> Void)?
-        ) {
-            self.properties = properties
-            self.willSet = willSet
-            self.didSet = didSet
-        }
     }
 }
