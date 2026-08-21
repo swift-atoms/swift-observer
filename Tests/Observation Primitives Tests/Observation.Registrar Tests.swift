@@ -1,12 +1,9 @@
-// Observation.Registrar Tests.swift
-
 import Synchronization
 import Tagged_Primitives
 import Testing
 
 @testable import Observation_Primitives
 
-/// Thread-safe holder for mutable test state captured in `@Sendable` closures.
 final class Box<T: Sendable>: @unchecked Sendable {
     private let _storage: Mutex<T>
 
@@ -75,7 +72,7 @@ extension Observation.Registrar.Test.Subscribe {
         #expect(fireCount.value == 1)
         registrar.unsubscribe(id)
         registrar.didSet(.init(0))
-        #expect(fireCount.value == 1)  // unchanged after unsubscribe
+        #expect(fireCount.value == 1)
     }
 }
 
@@ -195,7 +192,7 @@ extension Observation.Registrar.Test.WithMutation {
             }
             Issue.record("Expected error to propagate")
         } catch {
-            // Expected
+
         }
         #expect(didSetFired.value == true)
         registrar.unsubscribe(id)
@@ -213,7 +210,7 @@ extension Observation.Registrar.Test.Lifetime {
             to: [.init(0)],
             didSet: { _ in fired.mutate { $0 = true } }
         )
-        // Trigger via the COPY — both should see the same observer.
+
         r2.didSet(.init(0))
         #expect(fired.value == true)
         r1.unsubscribe(id)
@@ -236,9 +233,6 @@ extension Observation.Registrar.Test.NoncopyableSubject.Counter {
 
 extension Observation.Registrar.Test.NoncopyableSubject {
 
-    /// A ~Copyable Subject conforming to `Observable`.
-    ///
-    /// The documented gap in Apple's class-only `@Observable`.
     struct Counter: ~Copyable, Observable {
         let _$registrar: Observation.Registrar
         var _raw: Int

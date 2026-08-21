@@ -1,5 +1,3 @@
-// Observation Tests.swift
-
 import Tagged_Primitives
 import Testing
 
@@ -36,7 +34,7 @@ extension Observation.Test.ProtocolConformance {
 
     @Test
     func `Observable typealias resolves to Observation dot Protocol`() {
-        // If the typealias didn't resolve, this declaration would fail to compile.
+
         struct Foo: Observation.`Protocol` {
             var x: Int = 0
         }
@@ -81,8 +79,7 @@ extension Observation.Test.PropertyID {
 
     @Test
     func `PropertyID Tag is Observation.Property — type-system disambiguates`() {
-        // Tagged<Observation.Property, UInt32> is distinct from any other
-        // phantom-tagged UInt32 at the type level, even though both are UInt32 underneath.
+
         let id: Observation.Property.ID = .init(0)
         #expect(id.underlying == 0)
     }
@@ -122,7 +119,7 @@ extension Observation.Test.SubscriptionID {
     func `Registrar.subscribe vends typed Subscription.ID`() {
         let registrar = Observation.Registrar()
         let id: Observation.Subscription.ID = registrar.subscribe(to: [.init(0)])
-        // The static type checks at compile time — runtime check is a sanity assertion.
+
         #expect(id.underlying >= 0)
         registrar.unsubscribe(id)
     }
