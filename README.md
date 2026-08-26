@@ -1,4 +1,4 @@
-# Observation Primitives
+# Observation
 
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
 
@@ -11,7 +11,7 @@ Observation primitives for Swift — a typed `Observation` namespace with a lock
 `Observation` is the vocabulary a value type uses to announce mutations: a `Registrar` holds the `Property.ID → Subscription.ID` bindings, and observers subscribe with `willSet` / `didSet` callbacks. Because the registrar's identity lives in a heap-allocated extent rather than in the Subject's class identity, a `~Copyable` Subject — the case Apple's macro forbids — can adopt observation by hand.
 
 ```swift
-import Observation_Primitives
+import Observation
 
 // A ~Copyable Subject. Apple's class-only @Observable cannot express this.
 struct Counter: ~Copyable, Observable {
@@ -44,7 +44,7 @@ counter._$registrar.unsubscribe(subscription)
 Identifiers are phantom-tagged integers, so they cannot be crossed at the type level: `Observation.Property.ID` is `Tagged<Observation.Property, UInt32>` and `Observation.Subscription.ID` is `Tagged<Observation.Subscription, UInt64>` — distinct types even though both are integers underneath. A `Subscription.ID` is meaningful only within the `Registrar` that vended it, so reusing the value `0` across two registrars is never a collision.
 
 ```swift
-import Observation_Primitives
+import Observation
 
 let registrar = Observation.Registrar()
 
@@ -63,7 +63,7 @@ print(snapshot)   // 42
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-primitives/swift-observation-primitives.git", branch: "main")
+    .package(url: "https://github.com/swift-molecules/swift-observation.git", branch: "main")
 ]
 ```
 
@@ -71,7 +71,7 @@ dependencies: [
 .target(
     name: "App",
     dependencies: [
-        .product(name: "Observation Primitives", package: "swift-observation-primitives"),
+        .product(name: "Observation", package: "swift-observation"),
     ]
 )
 ```
@@ -86,8 +86,8 @@ Two library products. Depends only on the `Tagged` and `Ownership.Shared` primit
 
 | Product | Target | Purpose |
 |---------|--------|---------|
-| `Observation Primitives` | `Sources/Observation Primitives/` | The `Observation` namespace: the marker protocol `Observation.Protocol` (with the `Observable` adjective typealias), the phantom-tagged `Observation.Property.ID` and `Observation.Subscription.ID`, and the lock-protected `Observation.Registrar` with `access` / `willSet` / `didSet` / `withMutation` / `subscribe` / `unsubscribe`. |
-| `Observation Primitives Test Support` | `Tests/Support/` | Re-exports the main target for test consumers. |
+| `Observation` | `Sources/Observation/` | The `Observation` namespace: the marker protocol `Observation.Protocol` (with the `Observable` adjective typealias), the phantom-tagged `Observation.Property.ID` and `Observation.Subscription.ID`, and the lock-protected `Observation.Registrar` with `access` / `willSet` / `didSet` / `withMutation` / `subscribe` / `unsubscribe`. |
+| `Observation Test Support` | `Tests/Support/` | Re-exports the main target for test consumers. |
 
 Foundation-free.
 

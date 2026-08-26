@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-observation-primitives",
+    name: "swift-observation",
     platforms: [
         .macOS(.v27),
         .iOS(.v27),
@@ -13,51 +13,51 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "Observation Primitives",
-            targets: ["Observation Primitives"]
+            name: "Observation",
+            targets: ["Observation"]
         ),
         .library(
-            name: "Observation Primitives Test Support",
-            targets: ["Observation Primitives Test Support"]
+            name: "Observation Test Support",
+            targets: ["Observation Test Support"]
         ),
     ],
     dependencies: [
         .package(
-            url: "https://github.com/swift-primitives/swift-tagged-primitives.git",
+            url: "https://github.com/swift-molecules/swift-tagged.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-primitives/swift-ownership-primitives.git",
+            url: "https://github.com/swift-molecules/swift-ownership.git",
             branch: "main"
         ),
     ],
     targets: [
         .target(
-            name: "Observation Primitives",
+            name: "Observation",
             dependencies: [
-                .product(name: "Tagged Primitives", package: "swift-tagged-primitives"),
+                .product(name: "Tagged", package: "swift-tagged"),
                 .product(
-                    name: "Ownership Immutable Primitives",
-                    package: "swift-ownership-primitives"
+                    name: "Ownership Immutable",
+                    package: "swift-ownership"
                 ),
             ]
         ),
         .target(
-            name: "Observation Primitives Test Support",
+            name: "Observation Test Support",
             dependencies: [
-                "Observation Primitives",
+                "Observation",
                 .product(
-                    name: "Tagged Primitives Test Support",
-                    package: "swift-tagged-primitives"
+                    name: "Tagged Test Support",
+                    package: "swift-tagged"
                 ),
             ],
             path: "Tests/Support"
         ),
         .testTarget(
-            name: "Observation Primitives Tests",
+            name: "Observation Tests",
             dependencies: [
-                "Observation Primitives",
-                "Observation Primitives Test Support",
+                "Observation",
+                "Observation Test Support",
             ]
         ),
     ],
