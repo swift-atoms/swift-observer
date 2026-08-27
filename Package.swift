@@ -56,7 +56,10 @@ let package = Package(
         ),
         .testTarget(
             name: "Observation Tests",
-            dependencies: ["Observation"]
+            dependencies: [
+                "Observation",
+                .product(name: "Tagged", package: "swift-tagged"),
+            ]
         ),
     ],
     swiftLanguageModes: [.v6]
