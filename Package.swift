@@ -27,11 +27,11 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/swift-molecules/swift-tagged.git",
+            url: "https://github.com/swift-atoms/swift-tagged.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-molecules/swift-ownership.git",
+            url: "https://github.com/swift-atoms/swift-ownership.git",
             branch: "main"
         ),
     ],
@@ -40,10 +40,7 @@ let package = Package(
             name: "Observation",
             dependencies: [
                 .product(name: "Tagged", package: "swift-tagged"),
-                .product(
-                    name: "Ownership Immutable",
-                    package: "swift-ownership"
-                ),
+                .product(name: "Ownership", package: "swift-ownership"),
             ]
         ),
         .target(
