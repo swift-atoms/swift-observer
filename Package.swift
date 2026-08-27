@@ -17,8 +17,12 @@ let package = Package(
             targets: ["Observation"]
         ),
         .library(
-            name: "Observation Test Support",
-            targets: ["Observation Test Support"]
+            name: "Observation Standard Library Integration",
+            targets: ["Observation Standard Library Integration"]
+        ),
+        .library(
+            name: "Observation Apple Foundation Integration",
+            targets: ["Observation Apple Foundation Integration"]
         ),
     ],
     dependencies: [
@@ -43,22 +47,19 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Observation Test Support",
+            name: "Observation Standard Library Integration",
+            dependencies: ["Observation"]
+        ),
+        .target(
+            name: "Observation Apple Foundation Integration",
             dependencies: [
                 "Observation",
-                .product(
-                    name: "Tagged Test Support",
-                    package: "swift-tagged"
-                ),
-            ],
-            path: "Tests/Support"
+                "Observation Standard Library Integration",
+            ]
         ),
         .testTarget(
             name: "Observation Tests",
-            dependencies: [
-                "Observation",
-                "Observation Test Support",
-            ]
+            dependencies: ["Observation"]
         ),
     ],
     swiftLanguageModes: [.v6]
