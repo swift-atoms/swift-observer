@@ -16,18 +16,14 @@ let package = Package(
             name: "Observation",
             targets: ["Observation"]
         ),
-        .library(
-            name: "Observation Test Support",
-            targets: ["Observation Test Support"]
-        ),
     ],
     dependencies: [
         .package(
-            url: "https://github.com/swift-molecules/swift-tagged.git",
+            url: "https://github.com/swift-atoms/swift-tagged.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-molecules/swift-ownership.git",
+            url: "https://github.com/swift-atoms/swift-ownership.git",
             branch: "main"
         ),
     ],
@@ -42,22 +38,11 @@ let package = Package(
                 ),
             ]
         ),
-        .target(
-            name: "Observation Test Support",
-            dependencies: [
-                "Observation",
-                .product(
-                    name: "Tagged Test Support",
-                    package: "swift-tagged"
-                ),
-            ],
-            path: "Tests/Support"
-        ),
         .testTarget(
             name: "Observation Tests",
             dependencies: [
-                "Observation",
-                "Observation Test Support",
+                .target(name: "Observation"),
+                .product(name: "Tagged", package: "swift-tagged"),
             ]
         ),
     ],
