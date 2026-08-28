@@ -63,7 +63,7 @@ print(snapshot)   // 42
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-atoms/swift-observation.git", branch: "main")
+    .package(url: "https://github.com/swift-molecules/swift-observation.git", branch: "main")
 ]
 ```
 
@@ -76,21 +76,20 @@ dependencies: [
 )
 ```
 
-Requires Swift 6.4 and macOS 27 / iOS 27 / tvOS 27 / watchOS 27 / visionOS 27 (or the matching Linux / Windows toolchain).
+Requires Swift 6.3.1 and macOS 26 / iOS 26 / tvOS 26 / watchOS 26 / visionOS 26 (or the matching Linux / Windows toolchain).
 
 ---
 
 ## Architecture
 
-Three library products. The native target depends only on the `Tagged` and `Ownership` atoms plus the standard library's `Synchronization` module.
+Two library products. Depends only on the `Tagged` and `Ownership.Shared` primitives plus the standard library's `Synchronization` module.
 
 | Product | Target | Purpose |
 |---------|--------|---------|
 | `Observation` | `Sources/Observation/` | The `Observation` namespace: the marker protocol `Observation.Protocol` (with the `Observable` adjective typealias), the phantom-tagged `Observation.Property.ID` and `Observation.Subscription.ID`, and the lock-protected `Observation.Registrar` with `access` / `willSet` / `didSet` / `withMutation` / `subscribe` / `unsubscribe`. |
-| `Observation Standard Library Integration` | `Sources/Observation Standard Library Integration/` | The standard-library integration surface for the Observation atom. |
-| `Observation Apple Foundation Integration` | `Sources/Observation Apple Foundation Integration/` | The Foundation-facing aggregation product. |
+| `Observation Test Support` | `Tests/Support/` | Re-exports the main target for test consumers. |
 
-Foundation is imported only by the Apple Foundation Integration target.
+Foundation-free.
 
 ---
 
@@ -98,11 +97,10 @@ Foundation is imported only by the Apple Foundation Integration target.
 
 | Platform | Status |
 |----------|--------|
-| macOS 27 | Full support |
+| macOS 26 | Full support |
 | Linux | Full support |
 | Windows | Full support |
-| iOS 27 / tvOS 27 / watchOS 27 / visionOS 27 | Supported |
-| Swift Embedded | Not currently supported: `Observation.Registrar` requires `Synchronization.Mutex` |
+| iOS / tvOS / watchOS / visionOS | Supported |
 
 ---
 

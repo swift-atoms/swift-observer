@@ -17,21 +17,17 @@ let package = Package(
             targets: ["Observation"]
         ),
         .library(
-            name: "Observation Standard Library Integration",
-            targets: ["Observation Standard Library Integration"]
-        ),
-        .library(
-            name: "Observation Apple Foundation Integration",
-            targets: ["Observation Apple Foundation Integration"]
+            name: "Observation Test Support",
+            targets: ["Observation Test Support"]
         ),
     ],
     dependencies: [
         .package(
-            url: "https://github.com/swift-atoms/swift-tagged.git",
+            url: "https://github.com/swift-molecules/swift-tagged.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-atoms/swift-ownership.git",
+            url: "https://github.com/swift-molecules/swift-ownership.git",
             branch: "main"
         ),
     ],
@@ -40,25 +36,28 @@ let package = Package(
             name: "Observation",
             dependencies: [
                 .product(name: "Tagged", package: "swift-tagged"),
-                .product(name: "Ownership", package: "swift-ownership"),
+                .product(
+                    name: "Ownership Immutable",
+                    package: "swift-ownership"
+                ),
             ]
         ),
         .target(
-            name: "Observation Standard Library Integration",
-            dependencies: ["Observation"]
-        ),
-        .target(
-            name: "Observation Apple Foundation Integration",
+            name: "Observation Test Support",
             dependencies: [
                 "Observation",
-                "Observation Standard Library Integration",
-            ]
+                .product(
+                    name: "Tagged Test Support",
+                    package: "swift-tagged"
+                ),
+            ],
+            path: "Tests/Support"
         ),
         .testTarget(
             name: "Observation Tests",
             dependencies: [
                 "Observation",
-                .product(name: "Tagged", package: "swift-tagged"),
+                "Observation Test Support",
             ]
         ),
     ],

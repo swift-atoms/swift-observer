@@ -1,4 +1,4 @@
-public import Ownership
+public import Ownership_Immutable
 import Synchronization
 public import Tagged
 
