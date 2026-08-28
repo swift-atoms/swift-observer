@@ -1,7 +1,7 @@
-import Tagged_Primitives
+import Tagged
 import Testing
 
-@testable import Observation_Primitives
+@testable import Observation
 
 extension Observation {
     @Suite("Observation")

@@ -1,6 +1,6 @@
-public import Ownership_Immutable_Primitives
+public import Ownership_Immutable
 import Synchronization
-public import Tagged_Primitives
+public import Tagged
 
 extension Observation {
 

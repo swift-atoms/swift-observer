@@ -1,8 +1,8 @@
 import Synchronization
-import Tagged_Primitives
+import Tagged
 import Testing
 
-@testable import Observation_Primitives
+@testable import Observation
 
 final class Box<T: Sendable>: @unchecked Sendable {
     private let _storage: Mutex<T>
