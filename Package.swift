@@ -12,10 +12,10 @@ let package = Package(
         .visionOS(.v27),
     ],
     products: [
-        .library(
-            name: "Observation",
-            targets: ["Observation"]
-        ),
+        .library(name: "Observation", targets: ["Observation"]),
+        .library(name: "Observation Standard Library Integration", targets: ["Observation Standard Library Integration"]),
+        .library(name: "Observation Foundation Library Integration", targets: ["Observation Foundation Library Integration"]),
+        .library(name: "Observation Test Support", targets: ["Observation Test Support"]),
     ],
     dependencies: [
         .package(
@@ -33,21 +33,48 @@ let package = Package(
             dependencies: [
                 .product(name: "Tagged", package: "swift-tagged"),
                 .product(name: "Ownership", package: "swift-ownership"),
-            ]
+            ],
+            path: "Sources/Observation"
+        ),
+        .target(
+            name: "Observation Standard Library Integration",
+            dependencies: [
+                .target(name: "Observation"),
+            ],
+            path: "Sources/Observation Standard Library Integration"
+        ),
+        .target(
+            name: "Observation Foundation Library Integration",
+            dependencies: [
+                .target(name: "Observation"),
+                .target(name: "Observation Standard Library Integration"),
+            ],
+            path: "Sources/Observation Foundation Library Integration"
+        ),
+        .target(
+            name: "Observation Test Support",
+            dependencies: [
+                .target(name: "Observation"),
+            ],
+            path: "Tests/Support"
         ),
         .testTarget(
             name: "Observation Tests",
             dependencies: [
                 .target(name: "Observation"),
                 .product(name: "Tagged", package: "swift-tagged"),
-            ]
+                .target(name: "Observation Test Support"),
+                .target(name: "Observation Standard Library Integration"),
+                .target(name: "Observation Foundation Library Integration"),
+            ],
+            path: "Tests/Observation Tests"
         ),
     ],
     swiftLanguageModes: [.v6]
 )
 
-for target in package.targets where ![.system, .binary, .plugin, .macro].contains(target.type) {
-    let ecosystem: [SwiftSetting] = [
+for target in package.targets {
+    target.swiftSettings = [
         .strictMemorySafety(),
         .enableUpcomingFeature("ExistentialAny"),
         .enableUpcomingFeature("InternalImportsByDefault"),
@@ -56,8 +83,4 @@ for target in package.targets where ![.system, .binary, .plugin, .macro].contain
         .enableExperimentalFeature("Lifetimes"),
         .enableUpcomingFeature("InferIsolatedConformances"),
     ]
-
-    let package: [SwiftSetting] = []
-
-    target.swiftSettings = (target.swiftSettings ?? []) + ecosystem + package
 }
