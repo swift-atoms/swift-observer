@@ -2,7 +2,7 @@ import Synchronization
 import Tagged
 import Testing
 
-@testable import Observation
+@testable import Observer
 
 final class Box<T: Sendable>: @unchecked Sendable {
     private let _storage: Mutex<T>
@@ -18,8 +18,8 @@ final class Box<T: Sendable>: @unchecked Sendable {
     }
 }
 
-extension Observation.Registrar {
-    @Suite("Observation.Registrar")
+extension Observer.Registrar {
+    @Suite("Observer.Registrar")
     struct Test {
         @Suite struct Subscribe {}
         @Suite struct WillSet {}
@@ -30,11 +30,11 @@ extension Observation.Registrar {
     }
 }
 
-extension Observation.Registrar.Test.Subscribe {
+extension Observer.Registrar.Test.Subscribe {
 
     @Test
     func `subscribe returns unique subscription IDs`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         let id1 = registrar.subscribe(to: [.init(0)])
         let id2 = registrar.subscribe(to: [.init(0)])
         let id3 = registrar.subscribe(to: [.init(1)])
@@ -45,7 +45,7 @@ extension Observation.Registrar.Test.Subscribe {
 
     @Test
     func `subscribe accepts multiple properties`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         let firedFor = Box<Set<UInt32>>([])
         let id = registrar.subscribe(
             to: [.init(0), .init(1), .init(2)],
@@ -62,7 +62,7 @@ extension Observation.Registrar.Test.Subscribe {
 
     @Test
     func `unsubscribe removes the observer`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         let fireCount = Box(0)
         let id = registrar.subscribe(
             to: [.init(0)],
@@ -76,11 +76,11 @@ extension Observation.Registrar.Test.Subscribe {
     }
 }
 
-extension Observation.Registrar.Test.WillSet {
+extension Observer.Registrar.Test.WillSet {
 
     @Test
     func `willSet fires registered observer for matching property`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         let fired = Box(false)
         let id = registrar.subscribe(
             to: [.init(0)],
@@ -93,7 +93,7 @@ extension Observation.Registrar.Test.WillSet {
 
     @Test
     func `willSet does NOT fire for non-matching property`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         let fired = Box(false)
         let id = registrar.subscribe(
             to: [.init(0)],
@@ -106,7 +106,7 @@ extension Observation.Registrar.Test.WillSet {
 
     @Test
     func `willSet fires before didSet for the same property`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         let order = Box<[String]>([])
         let id = registrar.subscribe(
             to: [.init(0)],
@@ -120,11 +120,11 @@ extension Observation.Registrar.Test.WillSet {
     }
 }
 
-extension Observation.Registrar.Test.DidSet {
+extension Observer.Registrar.Test.DidSet {
 
     @Test
     func `didSet fires registered observer for matching property`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         let captured = Box<UInt32?>(nil)
         let id = registrar.subscribe(
             to: [.init(42)],
@@ -137,7 +137,7 @@ extension Observation.Registrar.Test.DidSet {
 
     @Test
     func `didSet fires multiple observers for the same property`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         let aFired = Box(false)
         let bFired = Box(false)
         let idA = registrar.subscribe(
@@ -156,11 +156,11 @@ extension Observation.Registrar.Test.DidSet {
     }
 }
 
-extension Observation.Registrar.Test.WithMutation {
+extension Observer.Registrar.Test.WithMutation {
 
     @Test
     func `withMutation fires willSet then body then didSet`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         let order = Box<[String]>([])
         let id = registrar.subscribe(
             to: [.init(0)],
@@ -178,7 +178,7 @@ extension Observation.Registrar.Test.WithMutation {
 
     @Test
     func `withMutation propagates errors and still fires didSet`() {
-        let registrar = Observation.Registrar()
+        let registrar = Observer.Registrar()
         struct TestError: Swift.Error {}
         let didSetFired = Box(false)
         let id = registrar.subscribe(
@@ -199,11 +199,11 @@ extension Observation.Registrar.Test.WithMutation {
     }
 }
 
-extension Observation.Registrar.Test.Lifetime {
+extension Observer.Registrar.Test.Lifetime {
 
     @Test
     func `Registrar copies share the same Extent (CoW handle)`() {
-        let r1 = Observation.Registrar()
+        let r1 = Observer.Registrar()
         let r2 = r1
         let fired = Box(false)
         let id = r1.subscribe(
@@ -217,7 +217,7 @@ extension Observation.Registrar.Test.Lifetime {
     }
 }
 
-extension Observation.Registrar.Test.NoncopyableSubject.Counter {
+extension Observer.Registrar.Test.NoncopyableSubject.Counter {
     var raw: Int {
         _read {
             _$registrar.access(.init(0))
@@ -231,14 +231,14 @@ extension Observation.Registrar.Test.NoncopyableSubject.Counter {
     }
 }
 
-extension Observation.Registrar.Test.NoncopyableSubject {
+extension Observer.Registrar.Test.NoncopyableSubject {
 
     struct Counter: ~Copyable, Observable {
-        let _$registrar: Observation.Registrar
+        let _$registrar: Observer.Registrar
         var _raw: Int
 
         init() {
-            self._$registrar = Observation.Registrar()
+            self._$registrar = Observer.Registrar()
             self._raw = 0
         }
     }

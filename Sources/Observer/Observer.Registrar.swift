@@ -2,7 +2,7 @@ public import Ownership
 import Synchronization
 public import Tagged
 
-extension Observation {
+extension Observer {
 
     public struct Registrar: Sendable {
         let _extent: Ownership.Immutable<Mutex<State>>
@@ -13,15 +13,15 @@ extension Observation {
     }
 }
 
-extension Observation.Registrar {
+extension Observer.Registrar {
 
-    public func access(_ propertyID: Observation.Property.ID) {
+    public func access(_ propertyID: Observer.Property.ID) {
 
         _ = propertyID
     }
 
-    public func willSet(_ propertyID: Observation.Property.ID) {
-        let callbacks: [@Sendable (Observation.Property.ID) -> Void] =
+    public func willSet(_ propertyID: Observer.Property.ID) {
+        let callbacks: [@Sendable (Observer.Property.ID) -> Void] =
             _extent.value.withLock { state in
                 guard let subscriptionIDs = state.lookups[propertyID] else {
                     return []
@@ -35,8 +35,8 @@ extension Observation.Registrar {
         }
     }
 
-    public func didSet(_ propertyID: Observation.Property.ID) {
-        let callbacks: [@Sendable (Observation.Property.ID) -> Void] =
+    public func didSet(_ propertyID: Observer.Property.ID) {
+        let callbacks: [@Sendable (Observer.Property.ID) -> Void] =
             _extent.value.withLock { state in
                 guard let subscriptionIDs = state.lookups[propertyID] else {
                     return []
@@ -51,7 +51,7 @@ extension Observation.Registrar {
     }
 
     public func withMutation<R: ~Copyable, E: Swift.Error>(
-        of propertyID: Observation.Property.ID,
+        of propertyID: Observer.Property.ID,
         _ body: () throws(E) -> R
     ) throws(E) -> R {
         willSet(propertyID)
@@ -60,18 +60,18 @@ extension Observation.Registrar {
     }
 }
 
-extension Observation.Registrar {
+extension Observer.Registrar {
 
     public func subscribe(
-        to properties: Set<Observation.Property.ID>,
-        willSet: (@Sendable (Observation.Property.ID) -> Void)? = nil,
-        didSet: (@Sendable (Observation.Property.ID) -> Void)? = nil
-    ) -> Observation.Subscription.ID {
+        to properties: Set<Observer.Property.ID>,
+        willSet: (@Sendable (Observer.Property.ID) -> Void)? = nil,
+        didSet: (@Sendable (Observer.Property.ID) -> Void)? = nil
+    ) -> Observer.Subscription.ID {
         _extent.value.withLock { state in
-            let id = Observation.Subscription.ID(state.nextSubscriptionID)
+            let id = Observer.Subscription.ID(state.nextSubscriptionID)
             state.nextSubscriptionID &+= 1
 
-            state.observers[id] = Observer(
+            state.observers[id] = Registration(
                 properties: properties,
                 willSet: willSet,
                 didSet: didSet
@@ -85,7 +85,7 @@ extension Observation.Registrar {
         }
     }
 
-    public func unsubscribe(_ subscriptionID: Observation.Subscription.ID) {
+    public func unsubscribe(_ subscriptionID: Observer.Subscription.ID) {
         _extent.value.withLock { state in
             guard let observer = state.observers.removeValue(forKey: subscriptionID) else {
                 return

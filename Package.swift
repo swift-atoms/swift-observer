@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-observation",
+    name: "swift-observer",
     platforms: [
         .macOS(.v27),
         .iOS(.v27),
@@ -12,10 +12,10 @@ let package = Package(
         .visionOS(.v27),
     ],
     products: [
-        .library(name: "Observation", targets: ["Observation"]),
-        .library(name: "Observation Standard Library Integration", targets: ["Observation Standard Library Integration"]),
-        .library(name: "Observation Foundation Library Integration", targets: ["Observation Foundation Library Integration"]),
-        .library(name: "Observation Test Support", targets: ["Observation Test Support"]),
+        .library(name: "Observer", targets: ["Observer"]),
+        .library(name: "Observer Standard Library Integration", targets: ["Observer Standard Library Integration"]),
+        .library(name: "Observer Foundation Library Integration", targets: ["Observer Foundation Library Integration"]),
+        .library(name: "Observer Test Support", targets: ["Observer Test Support"]),
     ],
     dependencies: [
         .package(
@@ -29,45 +29,45 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Observation",
+            name: "Observer",
             dependencies: [
                 .product(name: "Tagged", package: "swift-tagged"),
                 .product(name: "Ownership", package: "swift-ownership"),
             ],
-            path: "Sources/Observation"
+            path: "Sources/Observer"
         ),
         .target(
-            name: "Observation Standard Library Integration",
+            name: "Observer Standard Library Integration",
             dependencies: [
-                .target(name: "Observation"),
+                .target(name: "Observer"),
             ],
-            path: "Sources/Observation Standard Library Integration"
+            path: "Sources/Observer Standard Library Integration"
         ),
         .target(
-            name: "Observation Foundation Library Integration",
+            name: "Observer Foundation Library Integration",
             dependencies: [
-                .target(name: "Observation"),
-                .target(name: "Observation Standard Library Integration"),
+                .target(name: "Observer"),
+                .target(name: "Observer Standard Library Integration"),
             ],
-            path: "Sources/Observation Foundation Library Integration"
+            path: "Sources/Observer Foundation Library Integration"
         ),
         .target(
-            name: "Observation Test Support",
+            name: "Observer Test Support",
             dependencies: [
-                .target(name: "Observation"),
+                .target(name: "Observer"),
             ],
             path: "Tests/Support"
         ),
         .testTarget(
-            name: "Observation Tests",
+            name: "Observer Tests",
             dependencies: [
-                .target(name: "Observation"),
+                .target(name: "Observer"),
                 .product(name: "Tagged", package: "swift-tagged"),
-                .target(name: "Observation Test Support"),
-                .target(name: "Observation Standard Library Integration"),
-                .target(name: "Observation Foundation Library Integration"),
+                .target(name: "Observer Test Support"),
+                .target(name: "Observer Standard Library Integration"),
+                .target(name: "Observer Foundation Library Integration"),
             ],
-            path: "Tests/Observation Tests"
+            path: "Tests/Observer Tests"
         ),
     ],
     swiftLanguageModes: [.v6]

@@ -1,4 +1,4 @@
-extension Observation {
+extension Observer {
 
     public protocol `Protocol`: ~Copyable, ~Escapable {}
 }
