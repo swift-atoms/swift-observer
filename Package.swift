@@ -13,8 +13,8 @@ let package = Package(
     ],
     products: [
         .library(name: "Observer", targets: ["Observer"]),
-        .library(name: "Observer Standard Library Integration", targets: ["Observer Standard Library Integration"]),
-        .library(name: "Observer Foundation Library Integration", targets: ["Observer Foundation Library Integration"]),
+
+        .library(name: "Observer Foundation Integration", targets: ["Observer Foundation Integration"]),
         .library(name: "Observer Test Support", targets: ["Observer Test Support"]),
     ],
     dependencies: [
@@ -36,20 +36,13 @@ let package = Package(
             ],
             path: "Sources/Observer"
         ),
+        
         .target(
-            name: "Observer Standard Library Integration",
+            name: "Observer Foundation Integration",
             dependencies: [
                 .target(name: "Observer"),
             ],
-            path: "Sources/Observer Standard Library Integration"
-        ),
-        .target(
-            name: "Observer Foundation Library Integration",
-            dependencies: [
-                .target(name: "Observer"),
-                .target(name: "Observer Standard Library Integration"),
-            ],
-            path: "Sources/Observer Foundation Library Integration"
+            path: "Sources/Observer Foundation Integration"
         ),
         .target(
             name: "Observer Test Support",
@@ -64,8 +57,7 @@ let package = Package(
                 .target(name: "Observer"),
                 .product(name: "Tagged", package: "swift-tagged"),
                 .target(name: "Observer Test Support"),
-                .target(name: "Observer Standard Library Integration"),
-                .target(name: "Observer Foundation Library Integration"),
+                .target(name: "Observer Foundation Integration"),
             ],
             path: "Tests/Observer Tests"
         ),
