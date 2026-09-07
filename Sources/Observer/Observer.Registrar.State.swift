@@ -2,12 +2,12 @@ import Tagged
 
 extension Observer.Registrar {
 
-    struct State {
+    struct State: Sendable {
 
         var lookups: [Observer.Property.ID: Set<Observer.Subscription.ID>] = [:]
 
         var observers: [Observer.Subscription.ID: Registration] = [:]
 
-        var nextSubscriptionID: UInt64 = 0
+        var nextSubscriptionID: UInt64? = 0
     }
 }

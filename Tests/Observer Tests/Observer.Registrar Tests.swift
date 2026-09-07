@@ -4,36 +4,37 @@ import Testing
 
 @testable import Observer
 
-final class Box<T: Sendable>: @unchecked Sendable {
-    private let _storage: Mutex<T>
-
-    init(_ initial: T) { self._storage = Mutex(initial) }
-
-    var value: T {
-        _storage.withLock { $0 }
-    }
-
-    func mutate(_ body: (inout T) -> Void) {
-        _storage.withLock { body(&$0) }
-    }
-}
-
 extension Observer.Registrar {
-    @Suite("Observer.Registrar")
-    struct Test {
-        @Suite struct Subscribe {}
-        @Suite struct WillSet {}
-        @Suite struct DidSet {}
-        @Suite struct WithMutation {}
-        @Suite struct Lifetime {}
-        @Suite struct NoncopyableSubject {}
+    @Suite
+    struct `Registrars manage property subscriptions` {
+        final class Box<T: Sendable>: Sendable {
+            private let _storage: Mutex<T>
+
+            init(_ initial: T) { self._storage = Mutex(initial) }
+
+            var value: T {
+                _storage.withLock { $0 }
+            }
+
+            func mutate(_ body: (inout T) -> Void) {
+                _storage.withLock { body(&$0) }
+            }
+        }
+
+
+        @Suite struct `Subscriptions can be added and removed` {}
+        @Suite struct `Notifications precede mutation` {}
+        @Suite struct `Notifications follow mutation` {}
+        @Suite struct `Mutations preserve effects and results` {}
+        @Suite struct `Copies share registrar identity` {}
+        @Suite struct `Noncopyable subjects publish mutations` {}
     }
 }
 
-extension Observer.Registrar.Test.Subscribe {
+extension Observer.Registrar.`Registrars manage property subscriptions`.`Subscriptions can be added and removed` {
 
     @Test
-    func `subscribe returns unique subscription IDs`() {
+    func `Subscribing returns distinct identifiers`() {
         let registrar = Observer.Registrar()
         let id1 = registrar.subscribe(to: [.init(0)])
         let id2 = registrar.subscribe(to: [.init(0)])
@@ -44,9 +45,9 @@ extension Observer.Registrar.Test.Subscribe {
     }
 
     @Test
-    func `subscribe accepts multiple properties`() {
+    func `One subscription can observe multiple properties`() {
         let registrar = Observer.Registrar()
-        let firedFor = Box<Set<UInt32>>([])
+        let firedFor = Observer.Registrar.`Registrars manage property subscriptions`.Box<Set<UInt32>>([])
         let id = registrar.subscribe(
             to: [.init(0), .init(1), .init(2)],
             willSet: { propertyID in
@@ -61,9 +62,9 @@ extension Observer.Registrar.Test.Subscribe {
     }
 
     @Test
-    func `unsubscribe removes the observer`() {
+    func `Unsubscribing removes the registration`() {
         let registrar = Observer.Registrar()
-        let fireCount = Box(0)
+        let fireCount = Observer.Registrar.`Registrars manage property subscriptions`.Box(0)
         let id = registrar.subscribe(
             to: [.init(0)],
             didSet: { _ in fireCount.mutate { $0 += 1 } }
@@ -76,12 +77,12 @@ extension Observer.Registrar.Test.Subscribe {
     }
 }
 
-extension Observer.Registrar.Test.WillSet {
+extension Observer.Registrar.`Registrars manage property subscriptions`.`Notifications precede mutation` {
 
     @Test
-    func `willSet fires registered observer for matching property`() {
+    func `Matching properties receive notifications before mutation`() {
         let registrar = Observer.Registrar()
-        let fired = Box(false)
+        let fired = Observer.Registrar.`Registrars manage property subscriptions`.Box(false)
         let id = registrar.subscribe(
             to: [.init(0)],
             willSet: { _ in fired.mutate { $0 = true } }
@@ -92,9 +93,9 @@ extension Observer.Registrar.Test.WillSet {
     }
 
     @Test
-    func `willSet does NOT fire for non-matching property`() {
+    func `Unrelated properties do not receive notifications`() {
         let registrar = Observer.Registrar()
-        let fired = Box(false)
+        let fired = Observer.Registrar.`Registrars manage property subscriptions`.Box(false)
         let id = registrar.subscribe(
             to: [.init(0)],
             willSet: { _ in fired.mutate { $0 = true } }
@@ -105,9 +106,9 @@ extension Observer.Registrar.Test.WillSet {
     }
 
     @Test
-    func `willSet fires before didSet for the same property`() {
+    func `Mutation notifications preserve their phase order`() {
         let registrar = Observer.Registrar()
-        let order = Box<[String]>([])
+        let order = Observer.Registrar.`Registrars manage property subscriptions`.Box<[String]>([])
         let id = registrar.subscribe(
             to: [.init(0)],
             willSet: { _ in order.mutate { $0.append("will") } },
@@ -120,12 +121,12 @@ extension Observer.Registrar.Test.WillSet {
     }
 }
 
-extension Observer.Registrar.Test.DidSet {
+extension Observer.Registrar.`Registrars manage property subscriptions`.`Notifications follow mutation` {
 
     @Test
-    func `didSet fires registered observer for matching property`() {
+    func `Matching properties receive notifications after mutation`() {
         let registrar = Observer.Registrar()
-        let captured = Box<UInt32?>(nil)
+        let captured = Observer.Registrar.`Registrars manage property subscriptions`.Box<UInt32?>(nil)
         let id = registrar.subscribe(
             to: [.init(42)],
             didSet: { propertyID in captured.mutate { $0 = propertyID.underlying } }
@@ -136,10 +137,10 @@ extension Observer.Registrar.Test.DidSet {
     }
 
     @Test
-    func `didSet fires multiple observers for the same property`() {
+    func `Every matching subscriber receives the notification`() {
         let registrar = Observer.Registrar()
-        let aFired = Box(false)
-        let bFired = Box(false)
+        let aFired = Observer.Registrar.`Registrars manage property subscriptions`.Box(false)
+        let bFired = Observer.Registrar.`Registrars manage property subscriptions`.Box(false)
         let idA = registrar.subscribe(
             to: [.init(0)],
             didSet: { _ in aFired.mutate { $0 = true } }
@@ -156,12 +157,12 @@ extension Observer.Registrar.Test.DidSet {
     }
 }
 
-extension Observer.Registrar.Test.WithMutation {
+extension Observer.Registrar.`Registrars manage property subscriptions`.`Mutations preserve effects and results` {
 
     @Test
-    func `withMutation fires willSet then body then didSet`() {
+    func `Mutation bodies run between the notification phases`() {
         let registrar = Observer.Registrar()
-        let order = Box<[String]>([])
+        let order = Observer.Registrar.`Registrars manage property subscriptions`.Box<[String]>([])
         let id = registrar.subscribe(
             to: [.init(0)],
             willSet: { _ in order.mutate { $0.append("will") } },
@@ -177,35 +178,38 @@ extension Observer.Registrar.Test.WithMutation {
     }
 
     @Test
-    func `withMutation propagates errors and still fires didSet`() {
+    func `Mutation failures preserve their type and finish notifications`() {
         let registrar = Observer.Registrar()
-        struct TestError: Swift.Error {}
-        let didSetFired = Box(false)
+        enum Failure: Swift.Error, Equatable { case stopped }
+        let order = Observer.Registrar.`Registrars manage property subscriptions`.Box<[String]>([])
         let id = registrar.subscribe(
             to: [.init(0)],
-            didSet: { _ in didSetFired.mutate { $0 = true } }
+            willSet: { _ in order.mutate { $0.append("will") } },
+            didSet: { _ in order.mutate { $0.append("did") } }
         )
 
-        do throws(TestError) {
-            try registrar.withMutation(of: .init(0)) { () throws(TestError) in
-                throw TestError()
+        do throws(Failure) {
+            try registrar.withMutation(of: .init(0)) { () throws(Failure) in
+                order.mutate { $0.append("body") }
+                throw .stopped
             }
-            Issue.record("Expected error to propagate")
+            Issue.record("Expected the mutation failure")
         } catch {
-
+            #expect(error == .stopped)
         }
-        #expect(didSetFired.value == true)
+        #expect(order.value == ["will", "body", "did"])
         registrar.unsubscribe(id)
     }
 }
 
-extension Observer.Registrar.Test.Lifetime {
+extension Observer.Registrar.`Registrars manage property subscriptions`.`Copies share registrar identity` {
 
     @Test
-    func `Registrar copies share the same Extent (CoW handle)`() {
+    func `Registrar copies share subscriptions and identity`() {
         let r1 = Observer.Registrar()
         let r2 = r1
-        let fired = Box(false)
+        #expect(r1.id == r2.id)
+        let fired = Observer.Registrar.`Registrars manage property subscriptions`.Box(false)
         let id = r1.subscribe(
             to: [.init(0)],
             didSet: { _ in fired.mutate { $0 = true } }
@@ -213,14 +217,16 @@ extension Observer.Registrar.Test.Lifetime {
 
         r2.didSet(.init(0))
         #expect(fired.value == true)
-        r1.unsubscribe(id)
+        r2.unsubscribe(id)
+        fired.mutate { $0 = false }
+        r1.didSet(.init(0))
+        #expect(!fired.value)
     }
 }
 
-extension Observer.Registrar.Test.NoncopyableSubject.Counter {
+extension Observer.Registrar.`Registrars manage property subscriptions`.`Noncopyable subjects publish mutations`.Counter {
     var raw: Int {
         _read {
-            _$registrar.access(.init(0))
             yield _raw
         }
         _modify {
@@ -231,7 +237,7 @@ extension Observer.Registrar.Test.NoncopyableSubject.Counter {
     }
 }
 
-extension Observer.Registrar.Test.NoncopyableSubject {
+extension Observer.Registrar.`Registrars manage property subscriptions`.`Noncopyable subjects publish mutations` {
 
     struct Counter: ~Copyable, Observable {
         let _$registrar: Observer.Registrar
@@ -244,9 +250,9 @@ extension Observer.Registrar.Test.NoncopyableSubject {
     }
 
     @Test
-    func `~Copyable Subject can conform to Observable`() {
-        var counter = Counter()
-        let fired = Box(false)
+    func `Noncopyable subjects can publish observed assignments`() {
+        var counter = Observer.Registrar.`Registrars manage property subscriptions`.`Noncopyable subjects publish mutations`.Counter()
+        let fired = Observer.Registrar.`Registrars manage property subscriptions`.Box(false)
         let id = counter._$registrar.subscribe(
             to: [.init(0)],
             didSet: { _ in fired.mutate { $0 = true } }
@@ -260,9 +266,9 @@ extension Observer.Registrar.Test.NoncopyableSubject {
     }
 
     @Test
-    func `~Copyable Subject increments through _modify accessor`() {
-        var counter = Counter()
-        let fireCount = Box(0)
+    func `Noncopyable subjects publish changes through mutable accessors`() {
+        var counter = Observer.Registrar.`Registrars manage property subscriptions`.`Noncopyable subjects publish mutations`.Counter()
+        let fireCount = Observer.Registrar.`Registrars manage property subscriptions`.Box(0)
         let id = counter._$registrar.subscribe(
             to: [.init(0)],
             didSet: { _ in fireCount.mutate { $0 += 1 } }

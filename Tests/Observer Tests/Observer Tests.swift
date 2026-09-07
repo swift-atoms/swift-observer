@@ -4,18 +4,18 @@ import Testing
 @testable import Observer
 
 extension Observer {
-    @Suite("Observer")
-    struct Test {
-        @Suite struct ProtocolConformance {}
-        @Suite struct PropertyID {}
-        @Suite struct SubscriptionID {}
+    @Suite
+    struct `Observation identifiers and markers` {
+        @Suite struct `Subjects can opt into observation` {}
+        @Suite struct `Property identifiers distinguish observed fields` {}
+        @Suite struct `Subscription identifiers select registrations` {}
     }
 }
 
-extension Observer.Test.ProtocolConformance {
+extension Observer.`Observation identifiers and markers`.`Subjects can opt into observation` {
 
     @Test
-    func `Copyable struct can conform to Observable via marker`() {
+    func `Copyable subjects can adopt the observable marker`() {
         struct Counter: Observable {
             var raw: Int = 0
         }
@@ -24,7 +24,7 @@ extension Observer.Test.ProtocolConformance {
     }
 
     @Test
-    func `~Copyable struct can conform to Observable`() {
+    func `Noncopyable subjects can adopt the observable marker`() {
         struct UniqueCounter: ~Copyable, Observable {
             var raw: Int = 0
         }
@@ -33,7 +33,7 @@ extension Observer.Test.ProtocolConformance {
     }
 
     @Test
-    func `Observable typealias resolves to Observer dot Protocol`() {
+    func `Both marker spellings accept the same subjects`() {
 
         struct Foo: Observer.`Protocol` {
             var x: Int = 0
@@ -41,22 +41,23 @@ extension Observer.Test.ProtocolConformance {
         struct Bar: Observable {
             var y: Int = 0
         }
-        let f = Foo()
-        let b = Bar()
+        func accept<T: Observable>(_ value: T) -> T { value }
+        let f = accept(Foo())
+        let b = accept(Bar())
         #expect(f.x == b.y)
     }
 }
 
-extension Observer.Test.PropertyID {
+extension Observer.`Observation identifiers and markers`.`Property identifiers distinguish observed fields` {
 
     @Test
-    func `PropertyID wraps UInt32 raw value`() {
+    func `Property identifiers preserve their underlying values`() {
         let id: Observer.Property.ID = .init(42)
         #expect(id.underlying == 42)
     }
 
     @Test
-    func `PropertyID is Hashable`() {
+    func `Equal property identifiers have equal hashes`() {
         let a: Observer.Property.ID = .init(1)
         let b: Observer.Property.ID = .init(1)
         let c: Observer.Property.ID = .init(2)
@@ -66,7 +67,7 @@ extension Observer.Test.PropertyID {
     }
 
     @Test
-    func `PropertyID is usable as Set / Dictionary key`() {
+    func `Property identifiers can index sets and dictionaries`() {
         let set: Set<Observer.Property.ID> = [.init(0), .init(1), .init(2), .init(0)]
         #expect(set.count == 3)
 
@@ -77,24 +78,18 @@ extension Observer.Test.PropertyID {
         #expect(dict[.init(42)] == "answer")
     }
 
-    @Test
-    func `PropertyID Tag is Observer.Property — type-system disambiguates`() {
-
-        let id: Observer.Property.ID = .init(0)
-        #expect(id.underlying == 0)
-    }
 }
 
-extension Observer.Test.SubscriptionID {
+extension Observer.`Observation identifiers and markers`.`Subscription identifiers select registrations` {
 
     @Test
-    func `SubscriptionID wraps UInt64 raw value`() {
+    func `Subscription identifiers preserve their underlying values`() {
         let id: Observer.Subscription.ID = .init(42)
         #expect(id.underlying == 42)
     }
 
     @Test
-    func `SubscriptionID is Hashable`() {
+    func `Equal subscription identifiers have equal hashes`() {
         let a: Observer.Subscription.ID = .init(1)
         let b: Observer.Subscription.ID = .init(1)
         let c: Observer.Subscription.ID = .init(2)
@@ -104,7 +99,7 @@ extension Observer.Test.SubscriptionID {
     }
 
     @Test
-    func `SubscriptionID is usable as Set / Dictionary key`() {
+    func `Subscription identifiers can index sets and dictionaries`() {
         let set: Set<Observer.Subscription.ID> = [.init(0), .init(1), .init(2), .init(0)]
         #expect(set.count == 3)
 
@@ -115,12 +110,4 @@ extension Observer.Test.SubscriptionID {
         #expect(dict[.init(42)] == "answer")
     }
 
-    @Test
-    func `Registrar.subscribe vends typed Subscription.ID`() {
-        let registrar = Observer.Registrar()
-        let id: Observer.Subscription.ID = registrar.subscribe(to: [.init(0)])
-
-        #expect(id.underlying >= 0)
-        registrar.unsubscribe(id)
-    }
 }

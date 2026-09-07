@@ -2,7 +2,7 @@ import Tagged
 
 extension Observer.Registrar {
 
-    struct Registration {
+    struct Registration: Sendable {
 
         var properties: Set<Observer.Property.ID>
 

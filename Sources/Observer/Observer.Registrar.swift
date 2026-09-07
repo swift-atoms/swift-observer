@@ -15,11 +15,6 @@ extension Observer {
 
 extension Observer.Registrar {
 
-    public func access(_ propertyID: Observer.Property.ID) {
-
-        _ = propertyID
-    }
-
     public func willSet(_ propertyID: Observer.Property.ID) {
         let callbacks: [@Sendable (Observer.Property.ID) -> Void] =
             _extent.value.withLock { state in
@@ -68,8 +63,11 @@ extension Observer.Registrar {
         didSet: (@Sendable (Observer.Property.ID) -> Void)? = nil
     ) -> Observer.Subscription.ID {
         _extent.value.withLock { state in
-            let id = Observer.Subscription.ID(state.nextSubscriptionID)
-            state.nextSubscriptionID &+= 1
+            guard let rawValue = state.nextSubscriptionID else {
+                preconditionFailure("Observer subscription identifiers exhausted")
+            }
+            let id = Observer.Subscription.ID(rawValue)
+            state.nextSubscriptionID = rawValue == UInt64.max ? nil : rawValue + 1
 
             state.observers[id] = Registration(
                 properties: properties,
@@ -86,9 +84,9 @@ extension Observer.Registrar {
     }
 
     public func unsubscribe(_ subscriptionID: Observer.Subscription.ID) {
-        _extent.value.withLock { state in
+        let removed = _extent.value.withLock { state -> Registration? in
             guard let observer = state.observers.removeValue(forKey: subscriptionID) else {
-                return
+                return nil
             }
             for propertyID in observer.properties {
                 state.lookups[propertyID]?.remove(subscriptionID)
@@ -96,6 +94,8 @@ extension Observer.Registrar {
                     state.lookups[propertyID] = nil
                 }
             }
+            return observer
         }
+        withExtendedLifetime(removed) {}
     }
 }
