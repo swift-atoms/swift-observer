@@ -32,10 +32,7 @@ let package = Package(
             name: "Observation",
             dependencies: [
                 .product(name: "Tagged", package: "swift-tagged"),
-                .product(
-                    name: "Ownership Immutable",
-                    package: "swift-ownership"
-                ),
+                .product(name: "Ownership", package: "swift-ownership"),
             ]
         ),
         .testTarget(
