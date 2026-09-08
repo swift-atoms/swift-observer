@@ -5,14 +5,14 @@ import Testing
 
 extension Observer {
     @Suite
-    struct `Observation identifiers and markers` {
+    struct `Observer markers accept subjects and identifiers preserve their values` {
         @Suite struct `Subjects can opt into observation` {}
         @Suite struct `Property identifiers distinguish observed fields` {}
         @Suite struct `Subscription identifiers select registrations` {}
     }
 }
 
-extension Observer.`Observation identifiers and markers`.`Subjects can opt into observation` {
+extension Observer.`Observer markers accept subjects and identifiers preserve their values`.`Subjects can opt into observation` {
 
     @Test
     func `Copyable subjects can adopt the observable marker`() {
@@ -48,7 +48,7 @@ extension Observer.`Observation identifiers and markers`.`Subjects can opt into 
     }
 }
 
-extension Observer.`Observation identifiers and markers`.`Property identifiers distinguish observed fields` {
+extension Observer.`Observer markers accept subjects and identifiers preserve their values`.`Property identifiers distinguish observed fields` {
 
     @Test
     func `Property identifiers preserve their underlying values`() {
@@ -80,7 +80,7 @@ extension Observer.`Observation identifiers and markers`.`Property identifiers d
 
 }
 
-extension Observer.`Observation identifiers and markers`.`Subscription identifiers select registrations` {
+extension Observer.`Observer markers accept subjects and identifiers preserve their values`.`Subscription identifiers select registrations` {
 
     @Test
     func `Subscription identifiers preserve their underlying values`() {
