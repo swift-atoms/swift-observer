@@ -1,6 +1,3 @@
-# .github/metadata.yaml
-# new domain tag: observation — observation/notification/subscription patterns
-# (per [GH-REPO-021](b) inline-extension; folded into registry at next skill review).
 description: "Observation types for Swift, supporting subscription, registration, and notification across observable values."
 topics:
   - primitives
