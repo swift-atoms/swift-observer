@@ -8,12 +8,6 @@ import Testing
         let storage: Mutex<Value>
 
         init(_ value: Value) { storage = Mutex(value) }
-
-        var value: Value { storage.withLock { $0 } }
-
-        func update(_ body: (inout Value) -> Void) {
-            storage.withLock { body(&$0) }
-        }
     }
 
     final class Capture: Sendable {
@@ -179,5 +173,14 @@ import Testing
             precondition(events.value == ["will", "body", "did"])
             registrar.unsubscribe(id)
         }
+    }
+}
+
+extension `Registrar callbacks permit reentrancy`.State {
+
+    var value: Value { storage.withLock { $0 } }
+
+    func update(_ body: (inout Value) -> Void) {
+        storage.withLock { body(&$0) }
     }
 }

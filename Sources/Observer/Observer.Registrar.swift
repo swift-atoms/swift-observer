@@ -45,7 +45,7 @@ extension Observer.Registrar {
         }
     }
 
-    public func withMutation<R: ~Copyable, E: Swift.Error>(
+    public func withMutation<R: ~Copyable, E: Swift::Error>(
         of propertyID: Observer.Property.ID,
         _ body: () throws(E) -> R
     ) throws(E) -> R {

@@ -11,16 +11,7 @@ extension Observer.Registrar {
             private let _storage: Mutex<T>
 
             init(_ initial: T) { self._storage = Mutex(initial) }
-
-            var value: T {
-                _storage.withLock { $0 }
-            }
-
-            func mutate(_ body: (inout T) -> Void) {
-                _storage.withLock { body(&$0) }
-            }
         }
-
 
         @Suite struct `Subscriptions can be added and removed` {}
         @Suite struct `Notifications precede mutation` {}
@@ -28,6 +19,17 @@ extension Observer.Registrar {
         @Suite struct `Mutations preserve effects and results` {}
         @Suite struct `Copies share registrar identity` {}
         @Suite struct `Noncopyable subjects publish mutations` {}
+    }
+}
+
+extension Observer.Registrar.`Registrars manage property subscriptions`.Box {
+
+    var value: T {
+        _storage.withLock { $0 }
+    }
+
+    func mutate(_ body: (inout T) -> Void) {
+        _storage.withLock { body(&$0) }
     }
 }
 
@@ -180,7 +182,7 @@ extension Observer.Registrar.`Registrars manage property subscriptions`.`Mutatio
     @Test
     func `Mutation failures preserve their type and finish notifications`() {
         let registrar = Observer.Registrar()
-        enum Failure: Swift.Error, Equatable { case stopped }
+        enum Failure: Swift::Error, Equatable { case stopped }
         let order = Observer.Registrar.`Registrars manage property subscriptions`.Box<[String]>([])
         let id = registrar.subscribe(
             to: [.init(0)],
