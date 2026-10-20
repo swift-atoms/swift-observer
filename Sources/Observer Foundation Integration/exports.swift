@@ -1,2 +1,2 @@
-@_exported public import Observer
 import Foundation
+@_exported public import Observer

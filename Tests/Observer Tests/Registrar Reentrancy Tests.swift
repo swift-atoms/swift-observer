@@ -31,9 +31,12 @@ import Testing
         releases: `Registrar callbacks permit reentrancy`.State<Int>
     ) -> Observer.Subscription.ID {
         let capture = `Registrar callbacks permit reentrancy`.Capture(registrar, releases: releases)
-        return registrar.subscribe(to: [.init(0)], didSet: { [capture] _ in
-            withExtendedLifetime(capture) {}
-        })
+        return registrar.subscribe(
+            to: [.init(0)],
+            didSet: { [capture] _ in
+                withExtendedLifetime(capture) {}
+            }
+        )
     }
 
     @Test func `Unsubscribing releases callback captures after unlocking`() async {
@@ -66,10 +69,13 @@ import Testing
             let ids = `Registrar callbacks permit reentrancy`.State<[Observer.Subscription.ID]>([])
             let calls = `Registrar callbacks permit reentrancy`.State<[Int]>([])
             for index in 0..<2 {
-                let id = registrar.subscribe(to: [.init(0)], didSet: { _ in
-                    for id in ids.value { registrar.unsubscribe(id) }
-                    calls.update { $0.append(index) }
-                })
+                let id = registrar.subscribe(
+                    to: [.init(0)],
+                    didSet: { _ in
+                        for id in ids.value { registrar.unsubscribe(id) }
+                        calls.update { $0.append(index) }
+                    }
+                )
                 ids.update { $0.append(id) }
             }
 
@@ -91,14 +97,20 @@ import Testing
             let registrar = Observer.Registrar()
             let added = `Registrar callbacks permit reentrancy`.State<Observer.Subscription.ID?>(nil)
             let calls = `Registrar callbacks permit reentrancy`.State(0)
-            let first = registrar.subscribe(to: [.init(0)], didSet: { _ in
-                if added.value == nil {
-                    let id = registrar.subscribe(to: [.init(0)], didSet: { _ in
-                        calls.update { $0 += 1 }
-                    })
-                    added.update { $0 = id }
+            let first = registrar.subscribe(
+                to: [.init(0)],
+                didSet: { _ in
+                    if added.value == nil {
+                        let id = registrar.subscribe(
+                            to: [.init(0)],
+                            didSet: { _ in
+                                calls.update { $0 += 1 }
+                            }
+                        )
+                        added.update { $0 = id }
+                    }
                 }
-            })
+            )
 
             registrar.didSet(.init(0))
             precondition(calls.value == 0)
@@ -126,9 +138,12 @@ import Testing
                 willSet: { _ in
                     events.update { $0.append("will") }
                     registrar.unsubscribe(original.value!)
-                    let added = registrar.subscribe(to: [.init(0)], didSet: { _ in
-                        events.update { $0.append("replacement did") }
-                    })
+                    let added = registrar.subscribe(
+                        to: [.init(0)],
+                        didSet: { _ in
+                            events.update { $0.append("replacement did") }
+                        }
+                    )
                     replacement.update { $0 = added }
                 },
                 didSet: { _ in events.update { $0.append("original did") } }
