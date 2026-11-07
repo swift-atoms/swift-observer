@@ -8,10 +8,15 @@ enum `Observer Tests` {}
 extension `Observer Tests` {
     @Suite
     struct `Observer markers accept subjects and identifiers preserve their values` {
-        @Suite struct `Subjects can opt into observation` {}
-        @Suite struct `Property identifiers distinguish observed fields` {}
-        @Suite struct `Subscription identifiers select registrations` {}
     }
+}
+
+extension `Observer Tests`.`Observer markers accept subjects and identifiers preserve their values` {
+    @Suite struct `Subjects can opt into observation` {}
+
+    @Suite struct `Property identifiers distinguish observed fields` {}
+
+    @Suite struct `Subscription identifiers select registrations` {}
 }
 
 extension `Observer Tests`.`Observer markers accept subjects and identifiers preserve their values`.`Subjects can opt into observation` {

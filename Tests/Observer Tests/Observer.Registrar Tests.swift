@@ -14,14 +14,21 @@ extension `Observer.Registrar Tests` {
 
             init(_ initial: T) { self._storage = Mutex(initial) }
         }
-
-        @Suite struct `Subscriptions can be added and removed` {}
-        @Suite struct `Notifications precede mutation` {}
-        @Suite struct `Notifications follow mutation` {}
-        @Suite struct `Mutations preserve effects and results` {}
-        @Suite struct `Copies share registrar identity` {}
-        @Suite struct `Noncopyable subjects publish mutations` {}
     }
+}
+
+extension `Observer.Registrar Tests`.`Registrars manage property subscriptions` {
+    @Suite struct `Subscriptions can be added and removed` {}
+
+    @Suite struct `Notifications precede mutation` {}
+
+    @Suite struct `Notifications follow mutation` {}
+
+    @Suite struct `Mutations preserve effects and results` {}
+
+    @Suite struct `Copies share registrar identity` {}
+
+    @Suite struct `Noncopyable subjects publish mutations` {}
 }
 
 extension `Observer.Registrar Tests`.`Registrars manage property subscriptions`.Box {
