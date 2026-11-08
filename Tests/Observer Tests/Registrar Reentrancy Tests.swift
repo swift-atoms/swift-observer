@@ -68,7 +68,7 @@ import Testing
             let registrar = Observer.Registrar()
             let ids = `Registrar callbacks permit reentrancy`.State<[Observer.Subscription.ID]>([])
             let calls = `Registrar callbacks permit reentrancy`.State<[Int]>([])
-            for index in 0..<2 {
+            (0..<2).forEach { index in
                 let id = registrar.subscribe(
                     to: [.init(0)],
                     didSet: { _ in
