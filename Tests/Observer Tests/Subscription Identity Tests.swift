@@ -25,7 +25,7 @@ extension `Subscription Identity Tests` {
             registrar.didSet(.init(0))
             #expect(calls.value == 1)
             registrar.unsubscribe(active)
-            #expect(registrar._extent.value.withLock { $0.observers.isEmpty && $0.lookups.isEmpty })
+            #expect(registrar._extent.withLock { $0.observers.isEmpty && $0.lookups.isEmpty })
         }
 
         @Test func `Fresh registrars isolate identical property and subscription numbers`() {
@@ -64,7 +64,7 @@ extension `Subscription Identity Tests` {
                     calls.update { $0.append(property.underlying) }
                 }
             )
-            registrar._extent.value.withLock { $0.nextSubscriptionID = UInt64.max - 1 }
+            registrar._extent.withLock { $0.nextSubscriptionID = UInt64.max - 1 }
 
             let penultimate = registrar.subscribe(to: [.init(1)])
             let last = registrar.subscribe(
@@ -83,7 +83,7 @@ extension `Subscription Identity Tests` {
             registrar.unsubscribe(first)
             registrar.unsubscribe(penultimate)
             registrar.unsubscribe(last)
-            #expect(registrar._extent.value.withLock { $0.observers.isEmpty && $0.lookups.isEmpty })
+            #expect(registrar._extent.withLock { $0.observers.isEmpty && $0.lookups.isEmpty })
         }
 
         @Test func `Exhaustion fails instead of recycling a retired subscription identifier`() async {
@@ -91,7 +91,7 @@ extension `Subscription Identity Tests` {
                 let registrar = Observer.Registrar()
                 let first = registrar.subscribe(to: [.init(0)])
                 registrar.unsubscribe(first)
-                registrar._extent.value.withLock { $0.nextSubscriptionID = UInt64.max }
+                registrar._extent.withLock { $0.nextSubscriptionID = UInt64.max }
                 let last = registrar.subscribe(to: [.init(1)])
                 precondition(last.underlying == UInt64.max)
                 registrar.unsubscribe(last)

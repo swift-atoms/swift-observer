@@ -1,14 +1,12 @@
-public import Ownership
-import Synchronization
 public import Tagged
 
 extension Observer {
 
     public struct Registrar: Sendable {
-        let _extent: Ownership.Immutable<Mutex<State>>
+        let _extent: Lock
 
         public init() {
-            self._extent = Ownership.Immutable(Mutex(State()))
+            self._extent = Lock()
         }
     }
 }
@@ -17,7 +15,7 @@ extension Observer.Registrar {
 
     public func willSet(_ propertyID: Observer.Property.ID) {
         let callbacks: [@Sendable (Observer.Property.ID) -> Void] =
-            _extent.value.withLock { state in
+            _extent.withLock { state in
                 guard let subscriptionIDs = state.lookups[propertyID] else {
                     return []
                 }
@@ -32,7 +30,7 @@ extension Observer.Registrar {
 
     public func didSet(_ propertyID: Observer.Property.ID) {
         let callbacks: [@Sendable (Observer.Property.ID) -> Void] =
-            _extent.value.withLock { state in
+            _extent.withLock { state in
                 guard let subscriptionIDs = state.lookups[propertyID] else {
                     return []
                 }
@@ -62,7 +60,7 @@ extension Observer.Registrar {
         willSet: (@Sendable (Observer.Property.ID) -> Void)? = nil,
         didSet: (@Sendable (Observer.Property.ID) -> Void)? = nil
     ) -> Observer.Subscription.ID {
-        _extent.value.withLock { state in
+        _extent.withLock { state in
             guard let rawValue = state.nextSubscriptionID else {
                 preconditionFailure("Observer subscription identifiers exhausted")
             }
@@ -84,7 +82,7 @@ extension Observer.Registrar {
     }
 
     public func unsubscribe(_ subscriptionID: Observer.Subscription.ID) {
-        let removed = _extent.value.withLock { state -> Registration? in
+        let removed = _extent.withLock { state -> Registration? in
             guard let observer = state.observers.removeValue(forKey: subscriptionID) else {
                 return nil
             }
