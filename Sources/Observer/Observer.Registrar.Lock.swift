@@ -13,7 +13,9 @@ extension Observer.Registrar {
     final class Lock: Sendable {
         #if hasFeature(Embedded)
             private let locked = Atomic<Bool>(false)
-            private nonisolated(unsafe) var state = State()
+            // SAFETY: `state` is read and written only inside `withLock`, between
+            // acquiring and releasing `locked`, so no two threads touch it at once.
+            nonisolated(unsafe) private var state = State()
         #else
             private let mutex = Mutex(State())
         #endif
