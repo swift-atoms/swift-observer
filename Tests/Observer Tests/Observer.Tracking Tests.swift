@@ -43,7 +43,7 @@
     extension `Observer.Tracking Tests`.Test.`Context Capture` {
 
         @Test
-        func `access outside withObservationTracking is a no-op`() {
+        func `access outside Observer.Tracking.run is a no-op`() {
 
             let counter = Counter()
             Observer.Tracking.access(counter._$registrar, .init(0))
@@ -51,7 +51,7 @@
         }
 
         @Test
-        func `frame is nil outside withObservationTracking`() {
+        func `frame is nil outside Observer.Tracking.run`() {
             #expect(Observer.Tracking.frame == nil)
         }
     }
@@ -63,7 +63,7 @@
             var counter = Counter()
             let fired = `Observer.Tracking Tests`.Box(false)
 
-            let value = withObservationTracking {
+            let value = Observer.Tracking.run {
                 counter.x
             } onChange: {
                 fired.withLock { $0 = true }
@@ -80,7 +80,7 @@
             var counter = Counter()
             let fired = `Observer.Tracking Tests`.Box(false)
 
-            _ = withObservationTracking {
+            _ = Observer.Tracking.run {
                 counter.x
             } onChange: {
                 fired.withLock { $0 = true }
@@ -95,7 +95,7 @@
             var counter = Counter()
             let fireCount = `Observer.Tracking Tests`.Box(0)
 
-            withObservationTracking {
+            Observer.Tracking.run {
                 _ = counter.x
                 _ = counter.y
             } onChange: {
@@ -113,7 +113,7 @@
             var counter = Counter()
             let fireCount = `Observer.Tracking Tests`.Box(0)
 
-            withObservationTracking {
+            Observer.Tracking.run {
                 _ = counter.x
                 _ = counter.x
                 _ = counter.x
@@ -130,7 +130,7 @@
             var counter = Counter()
             counter.x = 42
 
-            let result = withObservationTracking {
+            let result = Observer.Tracking.run {
                 counter.x * 2
             } onChange: {
 
@@ -139,14 +139,14 @@
         }
 
         @Test
-        func `nested withObservationTracking — only inner records`() {
+        func `nested Observer.Tracking.run — only inner records`() {
             var counter = Counter()
             let outerFired = `Observer.Tracking Tests`.Box(false)
             let innerFired = `Observer.Tracking Tests`.Box(false)
 
-            _ = withObservationTracking {
+            _ = Observer.Tracking.run {
 
-                return withObservationTracking {
+                return Observer.Tracking.run {
                     counter.x
                 } onChange: {
                     innerFired.withLock { $0 = true }
@@ -166,7 +166,7 @@
             var b = Counter()
             let fired = `Observer.Tracking Tests`.Box(false)
 
-            withObservationTracking {
+            Observer.Tracking.run {
                 _ = a.x
                 _ = b.y
             } onChange: {

@@ -23,19 +23,22 @@
         @TaskLocal static var frame: Frame?
     }
 
-    public func withObservationTracking<R>(
-        _ apply: () -> R,
-        onChange: @escaping @Sendable () -> Void
-    ) -> R {
-        let frame = Observer.Tracking.Frame()
-        let result = Observer.Tracking.$frame.withValue(frame) { apply() }
+    extension Observer.Tracking {
 
-        let accesses = frame.accesses
-        guard !accesses.isEmpty else { return result }
+        public static func run<R>(
+            _ apply: () -> R,
+            onChange: @escaping @Sendable () -> Void
+        ) -> R {
+            let frame = Frame()
+            let result = $frame.withValue(frame) { apply() }
 
-        Observer.Tracking._installOneShot(accesses: accesses, onChange: onChange)
+            let accesses = frame.accesses
+            guard !accesses.isEmpty else { return result }
 
-        return result
+            _installOneShot(accesses: accesses, onChange: onChange)
+
+            return result
+        }
     }
 
     extension Observer.Tracking {
