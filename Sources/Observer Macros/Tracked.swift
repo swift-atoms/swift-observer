@@ -5,12 +5,12 @@ public struct Tracked {}
 
 extension VariableDeclSyntax {
 
-    fileprivate var trackedBinding: (name: TokenSyntax, type: TypeSyntax)? {
+    fileprivate var trackedBinding: (name: TokenSyntax, type: TypeSyntax?, initializer: InitializerClauseSyntax?)? {
         guard bindings.count == 1, let binding = bindings.first,
             let identifier = binding.pattern.as(IdentifierPatternSyntax.self),
-            let typeAnnotation = binding.typeAnnotation
+            binding.typeAnnotation != nil || binding.initializer != nil
         else { return nil }
-        return (identifier.identifier.trimmed, typeAnnotation.type.trimmed)
+        return (identifier.identifier.trimmed, binding.typeAnnotation?.type.trimmed, binding.initializer?.trimmed)
     }
 }
 
@@ -41,7 +41,7 @@ extension Tracked: AccessorMacro {
         in context: some MacroExpansionContext
     ) throws(Never) -> [AccessorDeclSyntax] {
         guard let varDecl = declaration.as(VariableDeclSyntax.self),
-            let (name, _) = varDecl.trackedBinding
+            let (name, _, _) = varDecl.trackedBinding
         else {
             return []
         }
@@ -73,11 +73,15 @@ extension Tracked: PeerMacro {
         in context: some MacroExpansionContext
     ) throws(Never) -> [DeclSyntax] {
         guard let varDecl = declaration.as(VariableDeclSyntax.self),
-            let (name, type) = varDecl.trackedBinding
+            let (name, type, initializer) = varDecl.trackedBinding
         else {
             return []
         }
         let storage: TokenSyntax = .identifier("_\(name.text)")
-        return ["var \(storage): \(type)"]
+        if let type {
+            return ["var \(storage): \(type)"]
+        }
+        guard let initializer else { return [] }
+        return ["var \(storage) \(initializer)"]
     }
 }

@@ -187,6 +187,44 @@ extension `Observable Tests`.Test.Unit {
     }
 
     @Test
+    func `a property without a type annotation keeps its initializer on the storage peer`() {
+        expectMacroExpansion(
+            """
+            @Observable
+            class Box {
+                var value = 0
+            }
+            """,
+            expandedSource: """
+                class Box {
+                    var value = 0 {
+                        @storageRestrictions(initializes: _value)
+                        init(initialValue) {
+                            _value = initialValue
+                        }
+                        _read {
+                            Observer.Tracking.access(_$registrar, .init(0))
+                            yield _value
+                        }
+                        _modify {
+                            _$registrar.willSet(.init(0))
+                            yield &_value
+                            _$registrar.didSet(.init(0))
+                        }
+                    }
+
+                    var _value = 0
+
+                    let _$registrar: Observer.Registrar = Observer.Registrar()
+                }
+
+                extension Box: Observer.`Protocol` {
+                }
+                """
+        )
+    }
+
+    @Test
     func `generic struct preserves the type parameter in the storage peer`() {
         expectMacroExpansion(
             """
