@@ -5,7 +5,7 @@
 
         final class Pending: Sendable {
 
-            private let state: Mutex<[(Observer.Registrar, Observer.Subscription.ID)]>
+            private let state: Mutex<[(Observer.Registrar.Lock, Observer.Subscription.ID)]>
 
             init() {
                 self.state = Mutex([])
@@ -15,12 +15,12 @@
 
     extension Observer.Tracking.Pending {
 
-        var subscriptions: [(Observer.Registrar, Observer.Subscription.ID)] {
+        var subscriptions: [(Observer.Registrar.Lock, Observer.Subscription.ID)] {
             state.withLock { $0 }
         }
 
-        func append(_ registrar: Observer.Registrar, _ id: Observer.Subscription.ID) {
-            state.withLock { $0.append((registrar, id)) }
+        func append(_ extent: Observer.Registrar.Lock, _ id: Observer.Subscription.ID) {
+            state.withLock { $0.append((extent, id)) }
         }
     }
 #endif

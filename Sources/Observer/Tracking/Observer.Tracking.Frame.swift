@@ -16,7 +16,7 @@
     extension Observer.Tracking.Frame {
 
         typealias Accesses = [ObjectIdentifier: (
-            registrar: Observer.Registrar, properties: Set<Observer.Property.ID>
+            extent: Observer.Registrar.Lock, properties: Set<Observer.Property.ID>
         )]
     }
 
@@ -28,12 +28,13 @@
 
         func record(_ registrar: Observer.Registrar, _ propertyID: Observer.Property.ID) {
             let key = registrar.id
+            let extent = registrar._extent
             state.withLock { accesses in
                 if var existing = accesses[key] {
                     existing.properties.insert(propertyID)
                     accesses[key] = existing
                 } else {
-                    accesses[key] = (registrar, [propertyID])
+                    accesses[key] = (extent, [propertyID])
                 }
             }
         }

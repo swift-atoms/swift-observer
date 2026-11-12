@@ -4,9 +4,12 @@ extension Observer {
 
     public struct Registrar: Sendable {
         let _extent: Lock
+        let _lifetime: Lifetime
 
         public init() {
-            self._extent = Lock()
+            let extent = Lock()
+            self._extent = extent
+            self._lifetime = Lifetime(extent)
         }
     }
 }
@@ -60,41 +63,11 @@ extension Observer.Registrar {
         willSet: (@Sendable (Observer.Property.ID) -> Void)? = nil,
         didSet: (@Sendable (Observer.Property.ID) -> Void)? = nil
     ) -> Observer.Subscription.ID {
-        _extent.withLock { state in
-            guard let rawValue = state.nextSubscriptionID else {
-                preconditionFailure("Observer subscription identifiers exhausted")
-            }
-            let id = Observer.Subscription.ID(rawValue)
-            state.nextSubscriptionID = rawValue == UInt64.max ? nil : rawValue + 1
-
-            state.observers[id] = Registration(
-                properties: properties,
-                willSet: willSet,
-                didSet: didSet
-            )
-
-            for propertyID in properties {
-                state.lookups[propertyID, default: []].insert(id)
-            }
-
-            return id
-        }
+        _extent.subscribe(to: properties, willSet: willSet, didSet: didSet)
     }
 
     public func unsubscribe(_ subscriptionID: Observer.Subscription.ID) {
-        let removed = _extent.withLock { state -> Registration? in
-            guard let observer = state.observers.removeValue(forKey: subscriptionID) else {
-                return nil
-            }
-            for propertyID in observer.properties {
-                state.lookups[propertyID]?.remove(subscriptionID)
-                if state.lookups[propertyID]?.isEmpty == true {
-                    state.lookups[propertyID] = nil
-                }
-            }
-            return observer
-        }
-        withExtendedLifetime(removed) {}
+        _extent.unsubscribe(subscriptionID)
     }
 }
 

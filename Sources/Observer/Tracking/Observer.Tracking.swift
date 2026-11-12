@@ -52,8 +52,8 @@
             let pending = Pending()
 
             let cleanup: @Sendable () -> Void = {
-                for (registrar, id) in pending.subscriptions {
-                    registrar.unsubscribe(id)
+                for (extent, id) in pending.subscriptions {
+                    extent.unsubscribe(id)
                 }
                 onChange()
             }
@@ -61,15 +61,15 @@
             let latch = Ownership.Latch<@Sendable () -> Void>(cleanup)
 
             for (_, value) in accesses {
-                let registrar = value.registrar
+                let extent = value.extent
                 let properties = value.properties
-                let id = registrar.subscribe(
+                let id = extent.subscribe(
                     to: properties,
                     didSet: { @Sendable [latch] _ in
                         latch.take()?()
                     }
                 )
-                pending.append(registrar, id)
+                pending.append(extent, id)
             }
 
             return latch
