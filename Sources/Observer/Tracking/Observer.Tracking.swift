@@ -29,10 +29,12 @@
             _ apply: () -> R,
             onChange: @escaping @Sendable () -> Void
         ) -> R {
-            let frame = Frame()
-            let result = $frame.withValue(frame) { apply() }
+            let enclosing = frame
+            let current = Frame()
+            let result = $frame.withValue(current) { apply() }
 
-            let accesses = frame.accesses
+            let accesses = current.accesses
+            enclosing?.merge(accesses)
             guard !accesses.isEmpty else { return result }
 
             _installOneShot(accesses: accesses, onChange: onChange)

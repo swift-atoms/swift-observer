@@ -38,5 +38,18 @@
                 }
             }
         }
+
+        func merge(_ other: Accesses) {
+            state.withLock { accesses in
+                for (key, value) in other {
+                    if var existing = accesses[key] {
+                        existing.properties.formUnion(value.properties)
+                        accesses[key] = existing
+                    } else {
+                        accesses[key] = value
+                    }
+                }
+            }
+        }
     }
 #endif

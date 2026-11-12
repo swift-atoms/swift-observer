@@ -139,7 +139,7 @@
         }
 
         @Test
-        func `nested Observer.Tracking.run — only inner records`() {
+        func `nested Observer.Tracking.run — inner and enclosing both record`() {
             var counter = Counter()
             let outerFired = `Observer.Tracking Tests`.Box(false)
             let innerFired = `Observer.Tracking Tests`.Box(false)
@@ -157,7 +157,7 @@
 
             counter.x = 1
             #expect(innerFired.withLock { $0 } == true)
-            #expect(outerFired.withLock { $0 } == false)
+            #expect(outerFired.withLock { $0 } == true)
         }
 
         @Test
