@@ -1,6 +1,6 @@
 # swift-observer
 
-Use this package when you hand-write an observable subject, of any kind, including `~Copyable` and `~Escapable` ones, and need a thread-safe registry that delivers will-set and did-set notifications per property to subscribers. Start from `Observer.Registrar`: the subject stores one, numbers its own fields with `Observer.Property.ID`, and brackets each mutation with `willSet`/`didSet` or `withMutation`. Subscribers get back an `Observer.Subscription.ID`. Conformance to `Observer.Protocol` (also spelled `Observable`) is a marker with no requirements. With the `Tracking` trait, the `@Observable` macro generates this wiring, and `Observer.Tracking.run(_:onChange:)` tells you once when anything read inside a closure changes.
+Use this package when you hand-write an observable subject, of any kind, including `~Copyable` and `~Escapable` ones, and need a thread-safe registry that delivers will-set and did-set notifications per property to subscribers. Start from `Observer.Registrar`: the subject stores one, numbers its own fields with `Observer.Property.ID`, and brackets each mutation with `willSet`/`didSet` or `withMutation`. Subscribers get back an `Observer.Subscription.ID`. Conformance to `Observer.Protocol` (also spelled `Observable`) is a marker with no requirements. With the `Tracking` trait, the `@Observable` macro generates this wiring for every stored `var` except one marked `@ObservationIgnored`, and `Observer.Tracking.run(_:onChange:)` tells you once when anything read inside a closure changes.
 
 ## Laws
 

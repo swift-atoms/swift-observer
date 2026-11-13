@@ -9,6 +9,7 @@ import Testing
 private let testMacros: [String: MacroSpec] = [
     "Observable": MacroSpec(type: Observable.self),
     "_ObservationTracked": MacroSpec(type: Tracked.self),
+    "ObservationIgnored": MacroSpec(type: Ignored.self),
 ]
 
 private func expectMacroExpansion(
@@ -300,6 +301,64 @@ extension `Observable Tests`.Test.`Edge Case` {
                 }
 
                 extension Counter: Observer.`Protocol` {
+                }
+                """
+        )
+    }
+
+    @Test
+    func `an ignored var gets no accessor and no position`() {
+        expectMacroExpansion(
+            """
+            @Observable
+            final class Model {
+                var a: Int = 0
+                @ObservationIgnored var cache: Int = 0
+                var b: Int = 0
+            }
+            """,
+            expandedSource: """
+                final class Model {
+                    var a: Int = 0 {
+                        @storageRestrictions(initializes: _a)
+                        init(initialValue) {
+                            _a = initialValue
+                        }
+                        _read {
+                            Observer.Tracking.access(_$registrar, .init(0))
+                            yield _a
+                        }
+                        _modify {
+                            _$registrar.willSet(.init(0))
+                            yield &_a
+                            _$registrar.didSet(.init(0))
+                        }
+                    }
+
+                    var _a: Int
+                    var cache: Int = 0
+                    var b: Int = 0 {
+                        @storageRestrictions(initializes: _b)
+                        init(initialValue) {
+                            _b = initialValue
+                        }
+                        _read {
+                            Observer.Tracking.access(_$registrar, .init(1))
+                            yield _b
+                        }
+                        _modify {
+                            _$registrar.willSet(.init(1))
+                            yield &_b
+                            _$registrar.didSet(.init(1))
+                        }
+                    }
+
+                    var _b: Int
+
+                    let _$registrar: Observer.Registrar = Observer.Registrar()
+                }
+
+                extension Model: Observer.`Protocol` {
                 }
                 """
         )

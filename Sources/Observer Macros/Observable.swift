@@ -16,6 +16,7 @@ extension VariableDeclSyntax {
                 continue
             }
         }
+        if isIgnored { return false }
         for binding in bindings {
             if binding.accessorBlock != nil { return false }
             if let id = binding.pattern.as(IdentifierPatternSyntax.self),
@@ -25,6 +26,14 @@ extension VariableDeclSyntax {
             }
         }
         return true
+    }
+
+    fileprivate var isIgnored: Bool {
+        attributes.contains { element in
+            guard let attribute = element.as(AttributeSyntax.self) else { return false }
+            let name = attribute.attributeName.trimmedDescription
+            return name == "ObservationIgnored" || name.hasSuffix(".ObservationIgnored")
+        }
     }
 
     fileprivate var firstBindingName: String? {
