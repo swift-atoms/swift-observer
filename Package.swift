@@ -31,6 +31,7 @@ let package = Package(
             url: "https://github.com/swift-atoms/swift-ownership.git",
             branch: "main"
         ),
+        .package(url: "https://github.com/swift-atoms/swift-lock.git", branch: "main"),
     ],
     targets: [
         .target(
@@ -38,6 +39,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Tagged", package: "swift-tagged"),
                 .product(name: "Ownership", package: "swift-ownership"),
+                .product(name: "Lock", package: "swift-lock"),
                 .target(name: "Observer Macros", condition: .when(traits: ["Tracking"])),
             ],
             path: "Sources/Observer"
@@ -70,6 +72,7 @@ let package = Package(
             name: "Observer Tests",
             dependencies: [
                 .target(name: "Observer"),
+                .product(name: "Lock", package: "swift-lock"),
                 .product(name: "Tagged", package: "swift-tagged"),
                 .target(name: "Observer Test Support"),
             ],

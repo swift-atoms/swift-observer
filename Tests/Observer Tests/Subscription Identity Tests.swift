@@ -1,3 +1,4 @@
+import Lock
 import Synchronization
 import Testing
 

@@ -1,3 +1,4 @@
+import Lock
 public import Tagged
 
 extension Observer {
@@ -7,7 +8,7 @@ extension Observer {
         let _lifetime: Lifetime
 
         public init() {
-            let extent = Lock()
+            let extent = Lock(State())
             self._extent = extent
             self._lifetime = Lifetime(extent)
         }

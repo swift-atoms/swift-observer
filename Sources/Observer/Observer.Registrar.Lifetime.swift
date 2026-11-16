@@ -1,3 +1,4 @@
+import Lock
 import Tagged
 
 extension Observer.Registrar {
