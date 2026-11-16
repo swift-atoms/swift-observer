@@ -16,6 +16,10 @@ extension Observer {
 }
 
 extension Observer.Registrar {
+    typealias Lock = Lock::Lock<State>
+}
+
+extension Observer.Registrar {
 
     public func willSet(_ propertyID: Observer.Property.ID) {
         let callbacks: [@Sendable (Observer.Property.ID) -> Void] =
